@@ -64,4 +64,4 @@ assert parse(example_input) == 4361
 with open('inputs/day03.input.txt') as f:
     real_input = f.read()
 
-parse(real_input) # => 532331
+print(parse(real_input)) # => 532331

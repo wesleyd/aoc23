@@ -40,4 +40,4 @@ assert play(example_input) == 2286
 with open("inputs/day02.input.txt") as f:
     real_input = f.read()
     
-play(real_input) # => 68638
+print(play(real_input)) # => 68638
