@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+from collections import defaultdict
+import random
 import re
 
 example_input = """
@@ -27,19 +29,19 @@ def parse_cards(inp):
 
 def play(inp):
     cards = parse_cards(inp)
-    hand = list(cards.keys())
-    n = 0
-    while n < len(hand):
-        cardnum = hand[n]
+    unscratched = defaultdict(int)
+    for n in cards.keys():
+        unscratched[n] = 1
+    nscratched = 0
+    while unscratched:
+        cardnum, numcards = random.choice(list(unscratched.items()))
+        del unscratched[cardnum]
+        nscratched += numcards
         winners, ours = cards[cardnum]
-        nmatches = 0
-        for our in ours:
-            if our in winners:
-                nmatches += 1
+        nmatches = sum([1 for our in ours if our in winners])
         for extra in range(cardnum+1, cardnum+nmatches+1):
-            hand.append(extra)
-        n += 1
-    return len(hand)
+            unscratched[extra]+=numcards
+    return nscratched
 
 assert play(example_input) == 30
 
