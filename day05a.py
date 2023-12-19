@@ -49,7 +49,7 @@ def parse_map(piece):
 
 def parse(inp):
     pieces = inp.split("\n\n")
-    seeds_str = pieces.pop(0).removeprefix("\nseeds: ")
+    seeds_str = pieces.pop(0).lstrip("\n").removeprefix("seeds: ")
     seeds = [int(x) for x in seeds_str.split(" ")]
     needs = {}
     for piece in pieces:
@@ -58,12 +58,31 @@ def parse(inp):
     almanac = (seeds, needs)
     return almanac
 
-parse(example_input)
+def translate(m, n):
+    for d, s, l in m:
+        if s <= n and n < s+l:
+            return d + (n - s)
+    return n
 
-def find(almanac, a, an, z):
-    if a == z:
+def find1(needs, want, a, an):
+    if a == want:
         return an
+    z, m = needs[a]
+    return find1(needs, want, z, translate(m, an))
 
+def find(inp):
+    almanac = parse(inp)
+    seeds, needs = almanac
+    lowest = -1
+    for seed in seeds:
+        x = find1(needs, 'location', 'seed', seed)
+        if lowest < 0 or x < lowest:
+            lowest = x
+    return lowest
 
-def needs1(almanac, a, an):
-    z, m = almanac[a]
+assert find(example_input) == 35
+
+with open("inputs/day05.input.txt") as f:
+    real_input = f.read()
+
+print(find(real_input)) # => 457535844
