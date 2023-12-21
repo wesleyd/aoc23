@@ -52,4 +52,4 @@ def sum_distances(galaxies):
 assert sum_distances(parse(example_input)) == 374
 
 real_input = open('inputs/day11.input.txt').read()
-print(sum_distances(parse(real_input)))
+print(sum_distances(parse(real_input))) # => 9693756
