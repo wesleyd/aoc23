@@ -1,0 +1,72 @@
+#!/usr/bin/env python3
+
+def hash(s):
+    curr = 0
+    for c in s:
+        n = ord(c)
+        curr += n
+        curr *= 17
+        curr %= 256
+    return curr
+
+assert hash("HASH") == 52
+
+example_input = "rn=1,cm-,qp=3,cm=2,qp-,pc=4,ot=9,ab=5,pc-,pc=6,ot=7"
+
+def make_boxes():
+    return [[] for _ in range(256)]
+
+def box_find(box, label):
+    for i, p in enumerate(box):
+        if p[0] == label:
+            return i
+    return -1
+
+def apply(boxes, cmd):
+    if cmd.endswith('-'):
+        label = cmd[:-1]
+        h = hash(label)
+        box = boxes[h]
+        i = box_find(box, label)
+        print('Deleting label from 
+        if i != -1:
+            box = box[:i] + box[i+1:]
+    elif '=' in cmd:
+        label, r = cmd.split('=')
+        h = hash(label)
+        n = int(r)
+        box = boxes[h]
+        i = box_find(box, label)
+        if i == -1:
+            box.append((label, n))
+        else:
+            box[i] = (label, n)
+    else:
+        assert False, f'bad command {cmd!s}'
+
+def print_boxes(boxes):
+    for i, box in enumerate(boxes):
+        if box:
+            print(f'Box {i}:', [p for p in box])
+
+def run(inp):
+    boxes = make_boxes()
+    cmds = inp.strip().split(',')
+    for cmd in cmds:
+        apply(boxes, cmd)
+        print(f'After {cmd!s}')
+        print_boxes(boxes)
+        print()
+
+run(example_input)
+
+
+return sum(hash(s) for s in inp.strip().split(','))
+
+hash("ab")
+
+#assert run("HASH") == 52
+#assert run(example_input) == 1320
+
+#real_input = open('inputs/day15.input.txt').read()
+#print(run(real_input))  # => 515210
