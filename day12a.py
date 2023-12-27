@@ -50,6 +50,7 @@ def run(inp):
             continue
         pat, nums = parse1(line)
         n = sum(1 for _ in matches(nums, pat))
+        print(f'"{line}" => {n}')
         tot += n
     return tot
 
