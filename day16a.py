@@ -69,4 +69,4 @@ def play(inp):
 assert play(example_input) == 46
 
 real_input = open('inputs/day16.input.txt').read().strip()
-play(real_input) # => 7996
+print(play(real_input)) # => 7996
