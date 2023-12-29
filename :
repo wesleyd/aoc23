@@ -1,0 +1,146 @@
+#!/usr/bin/env python3
+
+import math
+from collections import defaultdict
+
+example_input = """
+R 6 (#70c710)
+D 5 (#0dc571)
+L 2 (#5713f0)
+D 2 (#d2c081)
+R 2 (#59c680)
+D 2 (#411b91)
+L 5 (#8ceee2)
+U 2 (#caa173)
+L 1 (#1b58a2)
+U 2 (#caa171)
+R 2 (#7807d2)
+U 3 (#a77fa3)
+L 2 (#015232)
+U 2 (#7a21e3)
+"""
+
+def parse(inp):
+    for line in inp.splitlines():
+        if not line:
+            continue
+        pieces = line.split("#")
+        piece = pieces[1].rstrip(')')
+        direction = ['R', 'L', 'D', 'U'][int(piece[-1])]
+        distance = int(piece[:-1], 16)
+        yield direction, distance
+
+def dig(inp):
+    walls = []
+    p = (0, 0)
+    for direction, distance in parse(inp):
+        assert direction in 'UDLR', f'Bad direction={direction}.'
+        if direction == 'U':
+            q = (p[0]-distance, p[1])
+        elif direction == 'D':
+            q = (p[0]+distance, p[1])
+        elif direction == 'L':
+            q = (p[0], p[1]-distance)
+        elif direction == 'R':
+            q = (p[0], p[1]+distance)
+        walls.append((p, q))
+        p = q
+    walls.append((p, (0, 0)))
+    return walls
+
+def sketch(walls):
+    rows = {}
+    cols = {}
+    for w in walls:
+        for p in w:
+            rows[p[0]] = 0
+            cols[p[1]] = 0
+    for i, r in enumerate(rows):
+        rows[r] = i
+    for i, c in enumerate(cols):
+        cols[r] = i
+    nrows = max(rows.values())
+    ncols = max(cols.values())
+    grid = [[.] * ncols for _ in nrows]
+
+print(dig(example_input))
+
+def rows_of_walls(walls):
+    rows = set()
+    for wall in walls:
+        for corner in wall:
+            rows.add(corner[0])
+    return sorted(rows)
+
+def colums_of_row(walls, row):
+    cols = set()
+    for wall in walls:
+        for p in wall:
+            if p[0] <= row and row <= p[1]:
+                cols.add(p[1])
+    return sorted(cols)
+
+
+def area(walls):
+    a = 0
+    rows = rows_of_walls(walls)
+    row2 = rows.pop(0)
+    coli = colums_of_row(walls, row2)
+    print(coli)
+
+    widths = set(zip(coli, coli))
+    print(widths)
+
+print(area(dig(example_input)))
+
+    while rows:
+        row1 = row2
+        row2 = rows.pop()
+        for width in widths:
+            a += (row2 - row1) * width
+
+dig(example_input)
+
+area(dig(example_input))
+
+real_input = open('inputs/day18.input.txt').read().strip()
+print(len(dig(real_input)))
+
+
+
+
+
+
+def fill(lagoon):
+    for row in range(len(lagoon)):
+        nwalls = 0
+        col = 0
+        while col < len(lagoon[0]):
+            if lagoon[row][col] == '|':
+                nwalls += 1
+            elif lagoon[row][col] == '#':
+                start = col
+                col += 1
+                while at(lagoon, row, col) != '#':
+                    col += 1
+                if not(at(lagoon, row+1, start) == '|' and at(lagoon, row+1, col) == '|' or at(lagoon, row-1, start) == '|' and at(lagoon, row-1, col) == '|'):
+                    nwalls += 1
+            elif lagoon[row][col] == '.' and nwalls % 2 == 1:
+                lagoon[row][col] = '*'
+            col += 1
+    return lagoon
+
+def volume(lagoon):
+    vol = 0
+    for line in lagoon:
+        for c in line:
+            if c != '.':
+                vol += 1
+    return vol
+
+assert volume(fill(dig(example_input))) == 62
+
+real_input = open('inputs/day18.input.txt').read().strip()
+#draw(fill(dig(real_input)))
+print(volume(fill(dig(real_input))))
+
