@@ -159,8 +159,6 @@ def area(walls, thickness=2):
         lagoon = shrink(walls, thickness=2)
         rows = wallrows(walls)
         cols = wallcols(walls)
-        print(f'rows={rows}')
-        print(f'cols={cols}')
         heights = [1]*(2*len(rows)-1)
         widths = [1]*(2*len(cols)-1)
         for i in range(len(rows)-1):
@@ -173,15 +171,7 @@ def area(walls, thickness=2):
         lagoon = shrink(walls, thickness=0)
         heights = [1] * len(lagoon)
         widths = [1] * len(lagoon[0])
-    print(f'widths={widths}')
-    print(f'heights={heights}')
-    print('=====Before======')
-    draw(lagoon)
-    print('=================')
     fill(lagoon)
-    print('======After======')
-    draw(lagoon)
-    print('=================')
     area = 0
     assert len(lagoon) == len(heights), f'{len(lagoon)} != {len(heights)}'
     assert len(lagoon[0]) == len(widths), f'{len(lagoon[0])} != {len(widths)}'
