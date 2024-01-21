@@ -1,0 +1,92 @@
+#!/usr/bin/env python3
+
+# Following clever algebra at...
+#   https://github.com/jmd-dk/advent-of-code/blob/main/2023/solution/24/solve.py
+# ...where he separates the nonlinear terms onto the LHS and just equates them
+# with the same from another pair of axes. And then adds another hailstone and
+# does the same, leading to six unknowns and six equations! Then make sure it's
+# in the future, in the correct range, and hits all the other hailstones!
+
+import re
+import numpy as np
+
+from collections import namedtuple
+
+example_input = """
+19, 13, 30 @ -2,  1, -2
+18, 19, 22 @ -1, -1, -2
+20, 25, 34 @ -2, -2, -4
+12, 31, 28 @ -1, -2, -1
+20, 19, 15 @  1, -5, -3
+"""
+
+PV = namedtuple('PV', ['x', 'y', 'z', 'vx', 'vy', 'vz'])
+
+def parse(inp):
+    return [PV(*[int(s) for s in re.findall(r'-?\d+', line)]) for line in inp.strip().splitlines()]
+
+def solve(inp):
+  pp = parse(inp)
+  p0 = pp[0]
+  p1 = pp[1]
+  p2 = pp[2]
+  A = np.array([
+      [ p0.vy - p1.vy, p1.vx - p0.vx, 0, p1.y - p0.y, p0.x - p1.x, 0 ],
+      [ 0, p0.vz - p1.vz, p1.vy - p0.vy, 0, p1.z - p0.z, p0.y - p1.y ],
+      [ p1.vz - p0.vz, 0, p0.vx - p1.vx, p0.z - p1.z, 0, p1.x - p0.x ],
+      [ p0.vy - p2.vy, p2.vx - p0.vx, 0, p2.y - p0.y, p0.x - p2.x, 0 ],
+      [ 0, p0.vz - p2.vz, p2.vy - p0.vy, 0, p2.z - p0.z, p0.y - p2.y ],
+      [ p2.vz - p0.vz, 0, p0.vx - p2.vx, p0.z - p2.z, 0, p2.x - p0.x ],
+  ])
+  print(A)
+  b = np.array([
+      -p0.vx * p0.y + p0.x * p0.vy + p1.vx * p1.y - p1.x * p1.vy,
+      -p0.vy * p0.z + p0.y * p0.vz + p1.vy * p1.z - p1.y * p1.vz,
+      -p0.vz * p0.x + p0.z * p0.vx + p1.vz * p1.x - p1.z * p1.vx,
+      #
+      -p0.vx * p0.y + p0.x * p0.vy + p2.vx * p2.y - p2.x * p2.vy,
+      -p0.vy * p0.z + p0.y * p0.vz + p2.vy * p2.z - p2.y * p2.vz,
+      -p0.vz * p0.x + p0.z * p0.vx + p2.vz * p2.x - p2.z * p2.vx,
+      ])
+  print(b)
+  x = np.linalg.solve(A, b)
+  return PV(*x)
+solve(example_input)
+
+
+parse(example_input)
+
+
+def det(pv1, pv2):
+    return pv1.vx*(-pv2.vy) + pv2.vx*pv1.vy
+
+assert det(example[0], example[1]) == -3
+
+def solve(p, q):
+    d = det(p, q)
+    #print(f'd={d}')
+    if not d:
+        return None  # Parallel
+    t1 = ( -q.vy*(q.x-p.x) + q.vx*(q.y-p.y) )/ d
+    t2 = ( -p.vy*(q.x-p.x) + p.vx*(q.y-p.y) )/ d
+    if t1 < 0 or t2 < 0:
+        return None  # In the past
+    return (p.vx * t1 + p.x, p.vy * t1 + p.y)
+
+def run(inp, low, high):
+    n = 0
+    pp = parse(inp)
+    for i in range(len(pp)):
+        for j in range(i+1, len(pp)):
+            q = solve(pp[i], pp[j])
+            if not q:
+                continue
+            x, y = q
+            if low <= x <= high and low <= y <= high:
+                n += 1
+    return n
+
+assert run(example_input, 7, 27) == 2
+
+real_input = open('inputs/day24.input.txt').read()
+print(run(real_input, 200000000000000, 400000000000000)) # => 15262
